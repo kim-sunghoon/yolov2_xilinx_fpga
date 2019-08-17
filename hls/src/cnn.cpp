@@ -107,13 +107,13 @@ void mmcpy_inputpixel_m2b_comb(int *input,int *input1,int *input2,int *input3,
 		RowBeginByte[t1] = LowBit[t1];
 		BeginByteNum[t1] = ColIncreaseLength + LowBit[t1];
 
-//		assert((BeginByteNum[t1] > 0)&&(BeginByteNum[t1] < 256));
+        // assert((BeginByteNum[t1] > 0)&&(BeginByteNum[t1] < 256));
 
 		RowIntNum[t1] = BeginByteNum[t1] >> 1;
 		if(BeginByteNum[t1]&0x1)
 			RowIntNum[t1]++;
 
-//		assert((RowIntNum[t1] > 0)&&(RowIntNum[t1] < 256));
+        // assert((RowIntNum[t1] > 0)&&(RowIntNum[t1] < 256));
 	}
 
 	mmcpy_inputport(input,input_memcpy_buffer, TN_MIN_3b,RowOffset[0],RowIntNum[0]);
@@ -170,7 +170,7 @@ void copy_input2buf_row(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],
 	{
 		T2R = T2Rate;
 	}
-//	ap_uint<6> T2R_bound = MIN(t2_local + T2R,OnChipIB_Height);
+    // ap_uint<6> T2R_bound = MIN(t2_local + T2R,OnChipIB_Height);
 	unsigned char tmp_min = t2_local + T2R;
 	ap_uint<6> T2R_bound = MIN(tmp_min, OnChipIB_Height);
 
@@ -306,23 +306,23 @@ void input_load(int *input,int *input1,int *input2,int *input3,
 	ap_uint<6> t2;
 
 	ap_uint<9> r_9b = r;
-//	assert(r < 512);
+    // assert(r < 512);
 	ap_uint<9> c_9b = c;
-//	assert(c < 512);
-//	assert(n < 2048);
+    // assert(c < 512);
+    // assert(n < 2048);
 	ap_uint<11> n_11b = n;
-//	assert(Kernel_stride < 4);
+    // assert(Kernel_stride < 4);
 	ap_uint<2> Kernel_stride_2b = Kernel_stride;
-//	assert(Padding < 2);
+    // assert(Padding < 2);
 	ap_uint<1> Padding_1b = Padding;
-//	assert(Input_w < 512);
+    // assert(Input_w < 512);
 	ap_uint<9> Input_w_9b = Input_w;
 	ap_uint<10> Input_h_10b = Input_h;
-//	assert(Input_h < 1024);
-//	assert(TN_MIN < 8);//xx8
+    // assert(Input_h < 1024);
+    // assert(TN_MIN < 8);//xx8
 	ap_uint<3> TN_MIN_3b = TN_MIN;
 	ap_uint<18> IHxIW_18b = IHxIW;
-//	assert(IHxIW < 512*512);
+    // assert(IHxIW < 512*512);
 
 	ap_int<12> Coffset = c_9b*Kernel_stride_2b - Padding_1b;
 	ap_int<12> Roffset = r_9b*Kernel_stride_2b - Padding_1b;
@@ -379,8 +379,8 @@ void input_load(int *input,int *input1,int *input2,int *input3,
 			break;
 	}
 
-	//assert(ColNum < 64*64);
-	//assert(RowNum < 64);
+    // assert(ColNum < 64*64);
+    // assert(RowNum < 64);
 	RowSub = TRow_top - Roffset;
 	ColSub = TCol_left - Coffset;
 
@@ -390,7 +390,7 @@ void input_load(int *input,int *input1,int *input2,int *input3,
 	ap_uint<6> next_t22[1];
 	bool next_IsRowPixel2[1];
 
-//	ap_uint<6> trow_loops = (int)ceil(((float)TRow/T2Rate));
+    // ap_uint<6> trow_loops = (int)ceil(((float)TRow/T2Rate));
 	ap_uint<6> TMP_t2;
 	for(TMP_t2 = 0,t2 = 0;TMP_t2 < trow_loops + 1; t2 += T2Rate,TMP_t2++)
 	{
@@ -421,8 +421,8 @@ void input_load(int *input,int *input1,int *input2,int *input3,
 		}
 	}
 
-//	assert(TRow_top < 1024);
-//	assert(TCol_left < 1024);
+    // assert(TRow_top < 1024);
+    // assert(TCol_left < 1024);
 
 }
 
@@ -493,12 +493,12 @@ void weight_load_reorg(int *Weight,short weight_buffer[Tm][Tn][K][K],bool weight
 	if(!weight_load_enable)
 		return;
 
-//	assert(m < 1024);
-//	assert(n < 2048);//gg2048
-//	assert(IFM_numxKxK < 1024*16);
-//	assert(Kernel_size < 4);
-//	assert(TM_MIN < 64);
-//	assert(TN_MIN < 8);//xx8
+    // assert(m < 1024);
+    // assert(n < 2048);//gg2048
+    // assert(IFM_numxKxK < 1024*16);
+    // assert(Kernel_size < 4);
+    // assert(TM_MIN < 64);
+    // assert(TN_MIN < 8);//xx8
 
 	ap_uint<2> Kernel_size_2b = Kernel_size;
 	ap_uint<6> TM_MIN_6b = TM_MIN;
@@ -510,8 +510,8 @@ void weight_load_reorg(int *Weight,short weight_buffer[Tm][Tn][K][K],bool weight
 	bool Me0aNe0 = (m_10b==0)&&(n_11b==0);
 	unsigned int ReadLength = (TM_MIN_6b*TN_MIN_3b)>>1;
 
-//	if((TM_MIN*TN_MIN)%2)
-//		printf("weight % error\n");
+    // if((TM_MIN*TN_MIN)%2)
+    //     printf("weight % error\n");
 
 	ap_uint<3> t3,t4;
 	ap_uint<3> next_t3[1];
@@ -576,11 +576,11 @@ void compute(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],int output_
 		UCHAR InterSubBeta,UCHAR WeightAddInputSubInter,UCHAR InterSubOutput)
 {
 
-	static int local_beta_buffer[Tm];
+    static int local_beta_buffer[Tm];
 #pragma HLS ARRAY_PARTITION variable=local_beta_buffer complete dim=1
 
-//	static int compute_buffer[Tm][Tr][Tc];
-//#pragma HLS ARRAY_PARTITION variable=compute_buffer complete dim=1
+    // static int compute_buffer[Tm][Tr][Tc];
+// #pragma HLS ARRAY_PARTITION variable=compute_buffer complete dim=1
 
 	if(!enable)
 	{
@@ -599,19 +599,19 @@ void compute(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],int output_
 	ap_uint<5> TR_MIN_5b = TR_MIN;
 	ap_uint<5> TC_MIN_5b = TC_MIN;
 
-//	ap_uint<4> InterSubBeta_4b = InterSubBeta;
+    // ap_uint<4> InterSubBeta_4b = InterSubBeta;
 	ap_uint<4> WeightAddInputSubInter_4b = WeightAddInputSubInter;
 
-//	assert(InterSubBeta < 16);
-//	assert(WeightAddInputSubInter < 16);
-//	assert(InterSubOutput < 16);
-
-//	assert(Kernel_size < 4);
-//	assert(TR_MIN < 32);
-//	assert(TC_MIN < 32);
+    // assert(InterSubBeta < 16);
+    // assert(WeightAddInputSubInter < 16);
+    // assert(InterSubOutput < 16);
+    //
+    // assert(Kernel_size < 4);
+    // assert(TR_MIN < 32);
+    // assert(TC_MIN < 32);
 
 	ap_uint<11> n = TMP_N_next[0];
-//	assert(n < 2048);
+    // assert(n < 2048);
 
 	for(i = 0;i < Kernel_size_2b; i++)
 		for(j = 0;j < Kernel_size_2b; j++)
@@ -640,10 +640,10 @@ void compute(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],int output_
 						int tmp_add12 = tmp_add1 + tmp_add2;
 						output_buffer[tm][tr][tc] = tmp_add_result + tmp_add12;
 
-//						partial_mul[tm][0] = (weight_buffer[tm][0][i][j]*input_buffer[0][tr+i][tc+j]) >> WeightAddInputSubInter_4b;//Q1+Q2-Q3
-//						partial_mul[tm][1] = (weight_buffer[tm][1][i][j]*input_buffer[1][tr+i][tc+j]) >> WeightAddInputSubInter_4b;//Q1+Q2-Q3
-//
-//						compute_buffer[tm][tr][tc] = tmp_add_result + partial_mul[tm][0] + partial_mul[tm][1];
+                        // partial_mul[tm][0] = (weight_buffer[tm][0][i][j]*input_buffer[0][tr+i][tc+j]) >> WeightAddInputSubInter_4b;//Q1+Q2-Q3
+                        // partial_mul[tm][1] = (weight_buffer[tm][1][i][j]*input_buffer[1][tr+i][tc+j]) >> WeightAddInputSubInter_4b;//Q1+Q2-Q3
+                        //
+                        // compute_buffer[tm][tr][tc] = tmp_add_result + partial_mul[tm][0] + partial_mul[tm][1];
 					}
 				}
 }
@@ -800,7 +800,7 @@ void write_back_output_reorg(int output_buffer[Tm][Tr][Tc],int *Output,int *Outp
 	if(!write_flag)
 		return;
 
-//	assert(TM_MIN < 64);
+    // assert(TM_MIN < 64);
 	assert(TR_MIN < 32);
 	assert(TC_MIN < 32);
 
@@ -811,11 +811,11 @@ void write_back_output_reorg(int output_buffer[Tm][Tr][Tc],int *Output,int *Outp
 	ap_uint<9> r_9b = r;
 	ap_uint<9> c_9b = c;
 
-//	assert(m < 1024);
-//	assert(r < 512);
-//	assert(c < 512);
-//	assert(OHxOW < 512*512);
-//	assert(Output_w < 512);
+    // assert(m < 1024);
+    // assert(r < 512);
+    // assert(c < 512);
+    // assert(OHxOW < 512*512);
+    // assert(Output_w < 512);
 
 	ap_uint<6> TM_MIN_g;
 	if(TM_MIN_6b==9)
@@ -905,13 +905,13 @@ void pool_yolo2(short Input[Tn][OnChipIB_Height][OnChipIB_Width],int Output[Tm][
 	ap_uint<5> TC_MIN_5b = TC_MIN;
 	ap_uint<2> Kernel_stride_2b = Kernel_stride;
 
-//	assert(TR_MIN < 32);
-//	assert(TC_MIN < 32);
-//	assert(Kernel_stride < 4);
+    // assert(TR_MIN < 32);
+    // assert(TC_MIN < 32);
+    // assert(Kernel_stride < 4);
 
 	ap_uint<2> i,j;
 	ap_uint<5> tr,tc;
-//	ap_uint<8> i,j,tr,tc;
+    // ap_uint<8> i,j,tr,tc;
 	int of;
 	short tmp[Tn];
 #pragma HLS ARRAY_PARTITION variable=tmp complete dim=1
@@ -949,8 +949,8 @@ void reorg_yolo2(short Input[Tn][OnChipIB_Height][OnChipIB_Width],int Output[Tm]
 	if(!enable)
 		return;
 
-//	ap_uint<5> TR_MIN_5b = TR_MIN;
-//	ap_uint<5> TC_MIN_5b = TC_MIN;
+    // ap_uint<5> TR_MIN_5b = TR_MIN;
+    // ap_uint<5> TC_MIN_5b = TC_MIN;
 
 	assert(TR_MIN < 32);
 	assert(TC_MIN < 32);
