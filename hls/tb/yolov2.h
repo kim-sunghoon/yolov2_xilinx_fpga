@@ -14,7 +14,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-#include "cnn.h"
+#include "../src/cnn.h"
 #define FLT_MAX 3.402823466e+38F
 
 typedef enum{

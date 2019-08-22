@@ -78,11 +78,10 @@ void mmcpy_inputpixel_m2b_comb(int *input,int *input1,int *input2,int *input3,
 		return;
 
 	bool init = (t2==0);
-	if(init)
-	{
+	if(init){
 		tmp_inoffset = IN_OFFSET;
-	}else
-	{
+	}
+    else{
 		tmp_inoffset += RowIncreaseLength;
 	}
 
@@ -98,8 +97,7 @@ void mmcpy_inputpixel_m2b_comb(int *input,int *input1,int *input2,int *input3,
 #pragma HLS ARRAY_PARTITION variable=RowIntNum complete dim=1
 
 	int t1;
-	for(t1 = 0;t1 < Tn;t1++)
-	{
+	for(t1 = 0;t1 < Tn;t1++){
 #pragma HLS UNROLL
 		InOffset[t1] = tmp_inoffset + t1*IHxIW_18b;
 		RowOffset[t1] = InOffset[t1] >> 1;
@@ -139,8 +137,7 @@ void copy_input2buf_row(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],
 	ap_uint<3> T2R;
 
 	bool initial = (t2==0);
-	if(initial)
-	{
+	if(initial){
 		t2_local = 0;
 	}
 
@@ -157,17 +154,15 @@ void copy_input2buf_row(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],
 	short input_array[Tn][2];
 #pragma HLS ARRAY_PARTITION variable=input_array complete dim=1
 
-	for(t1 = 0;t1 < Tn; t1++)
-	{
+	for(t1 = 0;t1 < Tn; t1++){
 #pragma HLS UNROLL
 		input_mmcpy_offset[t1] = 0;
 	}
 
-	if(!IsRowPixel)
-	{
+	if(!IsRowPixel){
 		T2R = T2Rate + 1;
-	}else
-	{
+	}
+    else{
 		T2R = T2Rate;
 	}
     // ap_uint<6> T2R_bound = MIN(t2_local + T2R,OnChipIB_Height);
@@ -177,17 +172,14 @@ void copy_input2buf_row(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],
 	bool IsRowInit_flag = true;
 
 	for(t2r = t2_local;t2r < T2R_bound; t2r++)
-		for(t3 = 0;t3 < TCol; t3++)
-		{
+		for(t3 = 0;t3 < TCol; t3++){
 #pragma HLS PIPELINE
 			bool IsRowPixel_t2r = (t2r >= RowSub)&&(t2r < (row_len + RowSub));
 			bool IsColPixel = (t3 >= ColSub)&&(t3 < (col_len + ColSub));
 			bool IsRowInit = (t3==ColSub)&&IsRowInit_flag;
 
-			if(IsRowPixel_t2r&&IsColPixel)
-			{
-				if(IsRowInit)
-				{
+			if(IsRowPixel_t2r&&IsColPixel){
+				if(IsRowInit){
 					IsRowInit_flag = false;
 					cnt[0] = RowBeginByte[0];
 					cnt[1] = RowBeginByte[1];
@@ -199,32 +191,28 @@ void copy_input2buf_row(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],
 					NextInputFlag[3] = true;
 				}
 
-				if(NextInputFlag[0])
-				{
+				if(NextInputFlag[0]){
 					input_array[0][0] = input_memcpy_buffer[input_mmcpy_offset[0]];
 					input_array[0][1] = input_memcpy_buffer[input_mmcpy_offset[0]] >> 16;
 					input_mmcpy_offset[0]++;
 					NextInputFlag[0] = false;
 				}
 
-				if(NextInputFlag[1])
-				{
+				if(NextInputFlag[1]){
 					input_array[1][0] = input_memcpy_buffer1[input_mmcpy_offset[1]];
 					input_array[1][1] = input_memcpy_buffer1[input_mmcpy_offset[1]] >> 16;
 					input_mmcpy_offset[1]++;
 					NextInputFlag[1] = false;
 				}
 
-				if(NextInputFlag[2])
-				{
+				if(NextInputFlag[2]){
 					input_array[2][0] = input_memcpy_buffer2[input_mmcpy_offset[2]];
 					input_array[2][1] = input_memcpy_buffer2[input_mmcpy_offset[2]] >> 16;
 					input_mmcpy_offset[2]++;
 					NextInputFlag[2] = false;
 				}
 
-				if(NextInputFlag[3])
-				{
+				if(NextInputFlag[3]){
 					input_array[3][0] = input_memcpy_buffer3[input_mmcpy_offset[3]];
 					input_array[3][1] = input_memcpy_buffer3[input_mmcpy_offset[3]] >> 16;
 					input_mmcpy_offset[3]++;
@@ -236,43 +224,39 @@ void copy_input2buf_row(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],
 				input_buffer[2][t2r][t3] = input_array[2][cnt[2]];
 				input_buffer[3][t2r][t3] = input_array[3][cnt[3]];
 
-				if(cnt[0]==1)
-				{
+				if(cnt[0]==1){
 					NextInputFlag[0] = true;
 					cnt[0] = 0;
-				}else
-				{
+				}
+                else{
 					cnt[0] = 1;
 				}
 
-				if(cnt[1]==1)
-				{
+				if(cnt[1]==1){
 					NextInputFlag[1] = true;
 					cnt[1] = 0;
-				}else
-				{
+				}
+                else{
 					cnt[1] = 1;
 				}
 
-				if(cnt[2]==1)
-				{
+				if(cnt[2]==1){
 					NextInputFlag[2] = true;
 					cnt[2] = 0;
-				}else
-				{
+				}
+                else{
 					cnt[2] = 1;
 				}
 
-				if(cnt[3]==1)
-				{
+				if(cnt[3]==1){
 					NextInputFlag[3] = true;
 					cnt[3] = 0;
-				}else
-				{
+				}
+                else{
 					cnt[3] = 1;
 				}
-			}else
-			{
+			}
+            else{
 				input_buffer[0][t2r][t3] = pad_value;
 				input_buffer[1][t2r][t3] = pad_value;
 				input_buffer[2][t2r][t3] = pad_value;
@@ -360,8 +344,7 @@ void input_load(int *input,int *input1,int *input2,int *input3,
 	ap_uint<9> RowIncreaseLength;
 	ap_uint<6> ColIncreaseLength;
 	ap_uint<3> T2Rate;
-	switch(Input_w_9b)
-	{
+	switch(Input_w_9b){
 		case 26:
 			RowIncreaseLength = 2*26;
 			ColIncreaseLength = 2*26;
@@ -392,12 +375,10 @@ void input_load(int *input,int *input1,int *input2,int *input3,
 
     // ap_uint<6> trow_loops = (int)ceil(((float)TRow/T2Rate));
 	ap_uint<6> TMP_t2;
-	for(TMP_t2 = 0,t2 = 0;TMP_t2 < trow_loops + 1; t2 += T2Rate,TMP_t2++)
-	{
+	for(TMP_t2 = 0,t2 = 0;TMP_t2 < trow_loops + 1; t2 += T2Rate,TMP_t2++){
 		bool IsRowPixel = (t2 >= RowSub)&&(t2 < (row_len + RowSub));
 
-		if(pingpong == 1)
-		{
+		if(pingpong == 1){
 			mmcpy_inputpixel_m2b_comb(input,input1,input2,input3,
 							   input_memcpy_buffer0, input_memcpy_buffer1,
 							   input_memcpy_buffer2, input_memcpy_buffer3,
@@ -407,8 +388,8 @@ void input_load(int *input,int *input1,int *input2,int *input3,
 						 input_memcpy_buffer02, input_memcpy_buffer12,input_memcpy_buffer22, input_memcpy_buffer32,
 						RowBeginByte2, TRow, TCol,LayerType,next_t22,next_IsRowPixel2,TMP_t2!=0,T2Rate);
 			pingpong = 0;
-		}else
-		{
+		}
+        else{
 			mmcpy_inputpixel_m2b_comb(input,input1,input2,input3,
 							   input_memcpy_buffer02, input_memcpy_buffer12,
 							   input_memcpy_buffer22, input_memcpy_buffer32,
@@ -435,8 +416,7 @@ void weight_mmcpy_everyKxK(int *Weight,int weight_memcpy_buffer[Tm*Tn/2],ap_uint
 	next_t3[0] = t3;
 	next_t4[0] = t4;
 
-	if(init_enable)
-	{
+	if(init_enable){
 		Woffset = 0;
 	}
 
@@ -459,14 +439,11 @@ void load_weight2buf_everyKxK(int weight_memcpy_buffer[Tm*Tn/2],short weight_buf
 	short input_value;
 
 	for(t1 = 0;t1 < Tm; t1++)
-		for(t2 = 0;t2 < Tn; t2++)
-		{
+		for(t2 = 0;t2 < Tn; t2++){
 #pragma HLS PIPELINE
 			bool Enable = (t1 < TM_MIN)&&(t2 < TN_MIN);
-			if(Enable)
-			{
-				if(cnt==0)
-				{
+			if(Enable){
+				if(cnt==0){
 					input_array[0] = weight_memcpy_buffer[weight_memcpy_offset];
 					input_array[1] = weight_memcpy_buffer[weight_memcpy_offset] >> 16;
 					weight_memcpy_offset++;
@@ -561,8 +538,7 @@ void copy_local_beta(short beta_buffer[MAX_BETA_LENGTH],int local_beta_buffer[MA
 	ap_uint<4> InterSubBeta_4b = InterSubBeta;
 	int offset;
 	int tm;
-	for(tm = 0,offset = m;tm < TM_MIN;tm++)
-	{
+	for(tm = 0,offset = m;tm < TM_MIN;tm++){
 #pragma HLS PIPELINE
 		local_beta_buffer[tm] = beta_buffer[offset] << InterSubBeta_4b;
 		offset++;
@@ -577,20 +553,19 @@ void compute(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],int output_
 {
 
     static int local_beta_buffer[Tm];
-#pragma HLS ARRAY_PARTITION variable=local_beta_buffer complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=local_beta_buffer complete dim=1
 
     // static int compute_buffer[Tm][Tr][Tc];
 // #pragma HLS ARRAY_PARTITION variable=compute_buffer complete dim=1
 
-	if(!enable)
-	{
+	if(!enable){
 		copy_local_beta(beta_buffer,local_beta_buffer,TM_MIN,TMP_M,InterSubBeta);
 		return;
 	}
 
 	int partial_mul[Tm][Tn];
-#pragma HLS ARRAY_PARTITION variable=partial_mul complete dim=1
-#pragma HLS ARRAY_PARTITION variable=partial_mul complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=partial_mul complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=partial_mul complete dim=2
 
 	ap_uint<2> i,j;
 	UCHAR tm,tn;
@@ -616,15 +591,12 @@ void compute(short input_buffer[Tn][OnChipIB_Height][OnChipIB_Width],int output_
 	for(i = 0;i < Kernel_size_2b; i++)
 		for(j = 0;j < Kernel_size_2b; j++)
 			for(tr = 0;tr < TR_MIN_5b;tr++)
-				for(tc = 0;tc < TC_MIN_5b;tc++)
-				{
-#pragma HLS PIPELINE
-					for(tm = 0;tm < Tm;tm++)
-					{
-#pragma HLS DEPENDENCE variable=output_buffer inter false
+				for(tc = 0;tc < TC_MIN_5b;tc++){
+                    #pragma HLS PIPELINE
+					for(tm = 0;tm < Tm;tm++){
+                        #pragma HLS DEPENDENCE variable=output_buffer inter false
 						int tmp_add_result;
-						if(i==0&&j==0&&n==0)
-						{
+						if(i==0&&j==0&&n==0){
 							tmp_add_result = local_beta_buffer[tm];
 						}
 						else
@@ -669,8 +641,7 @@ void mmcpy_outputport1(int *Output,int output_tmp[Tr*Tc/4],ap_uint<6> tm,ap_uint
 
 void mmcpy_outputpixel(int *Output,int *Output1,int output_tmp[Tr*Tc/4],int output_tmp1[Tr*Tc/4],ap_uint<6> tm,ap_uint<6> mLoop1,ap_uint<6> mLoop2,int outputoffsetarray[2],int OutputLength,int OutputLength1,bool enable)
 {
-	if(!enable)
-	{
+	if(!enable){
 		return;
 	}
 	mmcpy_outputport(Output ,output_tmp ,tm,mLoop1,outputoffsetarray[0],OutputLength );
@@ -680,8 +651,7 @@ void mmcpy_outputpixel(int *Output,int *Output1,int output_tmp[Tr*Tc/4],int outp
 void outputpixel2buf(int output_buffer[Tm][Tr][Tc],int output_tmp[Tr*Tc/4],int output_tmp1[Tr*Tc/4],bool IsNL,int InterSubOutput,int LayerType,bool TC_MINe26,int TR_MIN,int TC_MIN,int mLoop,int rLoop, bool init,
 					 int outputoffsetarray[2],int OutputOffset1_sum,int OutputOffset1_sum1,int OutputOffset2_sum,ap_uint<6> tm_next[1],bool enable)
 {
-	if(!enable)
-	{
+	if(!enable){
 		return;
 	}
 
@@ -696,9 +666,9 @@ void outputpixel2buf(int output_buffer[Tm][Tr][Tc],int output_tmp[Tr*Tc/4],int o
 	int tmp_output3_1;
 	ap_uint<2> cnt = 0;
 	short ouput_array[2];
-#pragma HLS ARRAY_PARTITION variable=ouput_array complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=ouput_array complete dim=1
 	short ouput_array1[2];
-#pragma HLS ARRAY_PARTITION variable=ouput_array1 complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=ouput_array1 complete dim=1
 	ap_uint<5> tr;
 	static ap_uint<6> tm;
 
@@ -706,19 +676,18 @@ void outputpixel2buf(int output_buffer[Tm][Tr][Tc],int output_tmp[Tr*Tc/4],int o
 	ap_uint<5> tc;
 	ap_uint<2> TM_LOOP,tm_count;
 	ap_uint<4> TR_LOOP,tr_count;
-	if(init)
-	{
+
+	if(init){
 		tm = 0;
 	}
 
-	if(TC_MINe26)
-	{
+	if(TC_MINe26){
 		tm = mLoop;
 		tr = rLoop;
 		TM_LOOP = 1;
 		TR_LOOP = 1;
-	}else
-	{
+	}
+    else{
 		tr = 0;
 		TM_LOOP = 2;
 		TR_LOOP = 13;
@@ -728,42 +697,36 @@ void outputpixel2buf(int output_buffer[Tm][Tr][Tc],int output_tmp[Tr*Tc/4],int o
 	ap_uint<8> outputoffset1 = 0;
 	for(tm_count = 0;tm_count < TM_LOOP;tm_count++,tm++,tr = 0)
 		for(tr_count = 0;tr_count < TR_LOOP;tr_count++,tr++)
-			for(tc = 0;tc < TC_MIN_5b;tc++)
-			{
-#pragma HLS PIPELINE
+			for(tc = 0;tc < TC_MIN_5b;tc++){
+                #pragma HLS PIPELINE
 				int tmp = output_buffer[tm][tr][tc];
 				int tmp1 = output_buffer[tm + Tm/2][tr][tc];
-				if(IsNL&&tmp<0)
-				{
+				if(IsNL&&tmp<0){
 					tmp_output = ((long long)tmp*0xccc)>>15;
-				}else
-				{
+				}
+                else{
 					tmp_output = tmp;
 				}
 
-				if(IsNL&&tmp1<0)
-				{
+				if(IsNL&&tmp1<0){
 					tmp_output_1 = ((long long)tmp1*0xccc)>>15;
-				}else
-				{
+				}
+                else{
 					tmp_output_1 = tmp1;
 				}
 
-				if(LayerType==0)
-				{
+				if(LayerType==0){
 					tmp_output2 = tmp_output >> InterSubOutput_4b;
 					tmp_output2_1 = tmp_output_1 >> InterSubOutput_4b;
 				}
-				else
-				{
+				else{
 					tmp_output2 = tmp_output;
 					tmp_output2_1 = tmp_output_1;
 				}
 				ouput_array[cnt] = tmp_output2;
 				ouput_array1[cnt] = tmp_output2_1;
 				cnt++;
-				if(cnt==2)
-				{
+				if(cnt==2){
 					tmp_output3 = (ouput_array[0]       &0x0000FFFF) |
 							((ouput_array[1] << 16 )&0xFFFF0000);
 					tmp_output3_1 = (ouput_array1[0]       &0x0000FFFF) |
@@ -828,13 +791,12 @@ void write_back_output_reorg(int output_buffer[Tm][Tr][Tc],int *Output,int *Outp
 	bool TM_MINaboveTmdiv2 = TM_MIN_g > Tm/2;
 	bool TC_MINe26 = TC_MIN == 26;
 
-	if(TM_MINaboveTmdiv2)
-	{
+	if(TM_MINaboveTmdiv2){
 		mLoop = Tm/2;
 		mLoop1 = Tm/2;
 		mLoop2 = TM_MIN_g - Tm/2;
-	}else
-	{
+	}
+    else{
 		mLoop = TM_MIN_g;
 		mLoop1 = TM_MIN_g;
 		mLoop2 = 0;
@@ -848,15 +810,15 @@ void write_back_output_reorg(int output_buffer[Tm][Tr][Tc],int *Output,int *Outp
 	int OutputOffset2_sum;
 
 	// when TC_MIN==26,burstlength = 13*2/2=13,else 13*13*2/2=169
-	if(TC_MINe26)
-	{
+	if(TC_MINe26){
 		OutputLength = 26/2;
 		OutputLength1 = 26/2;
 		OutputOffset1 = OHxOW_18b;
 		OutputOffset2 = Output_w_9b;
 		rLoop = 26;
-	}else//TMxTRxTC TMx13x13 continues
-	{
+	}
+    //TMxTRxTC TMx13x13 continues
+    else {
 		OutputLength = 169;
 		OutputLength1 = 169;
 		rLoop = 1;
@@ -867,23 +829,21 @@ void write_back_output_reorg(int output_buffer[Tm][Tr][Tc],int *Output,int *Outp
 
 	bool pingpong = true;
 	int outputoffsetarray[2];
-#pragma HLS ARRAY_PARTITION variable=outputoffsetarray complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=outputoffsetarray complete dim=1
 	int outputoffsetarray1[2];
-#pragma HLS ARRAY_PARTITION variable=outputoffsetarray1 complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=outputoffsetarray1 complete dim=1
 	ap_uint<6> tm_next[1];
 	ap_uint<6> tm_next1[1];
 	bool wb_start_flag = true;
 	for(tm = 0,OutputOffset1_sum = offset,OutputOffset1_sum1 = offset1;tm < mLoop;tm++,OutputOffset1_sum += OutputOffset1,OutputOffset1_sum1 += OutputOffset1)
-		for(tr = 0,OutputOffset2_sum = 0;tr < rLoop + 1;tr++,OutputOffset2_sum += OutputOffset2,wb_start_flag = false)
-		{
-			if(pingpong)
-			{
+		for(tr = 0,OutputOffset2_sum = 0;tr < rLoop + 1;tr++,OutputOffset2_sum += OutputOffset2,wb_start_flag = false){
+			if(pingpong){
 				outputpixel2buf( output_buffer, output_tmp00, output_tmp01, IsNL, InterSubOutput, LayerType, TC_MINe26, TR_MIN, TC_MIN, tm, tr,wb_start_flag,
 					  outputoffsetarray, OutputOffset1_sum, OutputOffset1_sum1, OutputOffset2_sum,tm_next,tr != rLoop);
 				mmcpy_outputpixel(Output,Output1, output_tmp10, output_tmp11, tm_next1[0], mLoop1, mLoop2, outputoffsetarray1, OutputLength, OutputLength1,tr != 0);
 				pingpong = false;
-			}else
-			{
+			}
+            else{
 				outputpixel2buf( output_buffer, output_tmp10, output_tmp11, IsNL, InterSubOutput, LayerType, TC_MINe26, TR_MIN, TC_MIN, tm, tr,wb_start_flag,
 					  outputoffsetarray1, OutputOffset1_sum, OutputOffset1_sum1, OutputOffset2_sum,tm_next1,tr != rLoop);
 				mmcpy_outputpixel(Output,Output1, output_tmp00, output_tmp01, tm_next[0], mLoop1, mLoop2, outputoffsetarray, OutputLength, OutputLength1,tr != 0);
@@ -914,18 +874,16 @@ void pool_yolo2(short Input[Tn][OnChipIB_Height][OnChipIB_Width],int Output[Tm][
     // ap_uint<8> i,j,tr,tc;
 	int of;
 	short tmp[Tn];
-#pragma HLS ARRAY_PARTITION variable=tmp complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=tmp complete dim=1
 	short input_short[Tn];
-#pragma HLS ARRAY_PARTITION variable=input_short complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=input_short complete dim=1
 
 	for(tr = 0;tr < TR_MIN_5b;tr++)
 		for(tc = 0;tc < TC_MIN_5b;tc++)
 			for(i =0;i < 2; i++)
-				for(j = 0;j < 2; j++)
-				{
-#pragma HLS PIPELINE
-					for( of = 0; of < Tn; of++)
-					{
+				for(j = 0;j < 2; j++){
+                    #pragma HLS PIPELINE
+					for( of = 0; of < Tn; of++){
 						if(i==0&&j==0)
 							tmp[of] = 0x8001;
 						input_short[of] = Input[of][tr*Kernel_stride_2b+i][tc*Kernel_stride_2b+j];
@@ -958,14 +916,13 @@ void reorg_yolo2(short Input[Tn][OnChipIB_Height][OnChipIB_Width],int Output[Tm]
     for( y = 0; y < TR_MIN; y++)
     	for( x = 0; x < TC_MIN; x++)
 			for(ky= 0;ky < 2; ky++)
-    			for(kx = 0;kx < 2; kx++)
-				{
-#pragma HLS PIPELINE
-						Yoffset = (y << 1) + ky;
-						Xoffset = (x << 1) + kx;
+    			for(kx = 0;kx < 2; kx++){
+                    #pragma HLS PIPELINE
+					Yoffset = (y << 1) + ky;
+					Xoffset = (x << 1) + kx;
 
-						int in_index  = (ky << 1) + kx;
-						Output[in_index][y][x] = Input[0][Yoffset][Xoffset];
+					int in_index  = (ky << 1) + kx;
+					Output[in_index][y][x] = Input[0][Yoffset][Xoffset];
     			}
 }
 
@@ -978,19 +935,18 @@ void intra_pingpong_wrapper(int *Input,int *Input1,int *Input2,int *Input3,int *
 {
 
 	static short weight_buffer0[Tm][Tn][K][K];
-#pragma HLS ARRAY_PARTITION variable=weight_buffer0 complete dim=1
-#pragma HLS ARRAY_PARTITION variable=weight_buffer0 complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=weight_buffer0 complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=weight_buffer0 complete dim=2
 
 	static short weight_buffer1[Tm][Tn][K][K];
-#pragma HLS ARRAY_PARTITION variable=weight_buffer1 complete dim=1
-#pragma HLS ARRAY_PARTITION variable=weight_buffer1 complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=weight_buffer1 complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=weight_buffer1 complete dim=2
 
 	static int NOP[1];
 	static int tmp_x;
 	static int tmp_tx_min;
 
-	if(LayerType==0)
-	{
+	if(LayerType==0){
 
 		if(!input_flag)
 			return;
@@ -1002,17 +958,15 @@ void intra_pingpong_wrapper(int *Input,int *Input1,int *Input2,int *Input3,int *
 		int TMP_N_next1[1];
 		int n;
 		int TMP_N;
-		for(TMP_N = 0,n = 0;n < nLoops+1; n++,TMP_N += TN)
-		{
-			if(pingpong == 1)
-			{
+		for(TMP_N = 0,n = 0;n < nLoops+1; n++,TMP_N += TN){
+			if(pingpong == 1){
 				copy_input_weight(Input,Input1,Input2,Input3,Weight,InFM_num,Input_w,Input_h,Kernel_size,Kernel_stride,TMP_R,TMP_C,TMP_M,TMP_N,
 					TM_MIN,TN,TRow,TCol,Padding,input_buffer1,weight_buffer1,TMP_N_next1,n!=nLoops,1,(m==0)&&(n==0),IHxIW,KxK,IFM_numxKxK,LayerType,trow_loops);
 				compute(input_buffer0,output_buffer,weight_buffer0,beta_buffer,TMP_N_next0,Kernel_size,Kernel_stride,TMP_M,TM_MIN,TR_MIN,TC_MIN,n!=0,IsNL,n==nLoops,
 					   InterSubBeta,WeightAddInputSubInter,InterSubOutput);
 				pingpong = 0;
-			}else
-			{
+			}
+            else{
 				copy_input_weight(Input,Input1,Input2,Input3,Weight,InFM_num,Input_w,Input_h,Kernel_size,Kernel_stride,TMP_R,TMP_C,TMP_M,TMP_N,
 					TM_MIN,TN,TRow,TCol,Padding,input_buffer0,weight_buffer0,TMP_N_next0,n!=nLoops,1,(m==0)&&(n==0),IHxIW,KxK,IFM_numxKxK,LayerType,trow_loops);
 				compute(input_buffer1,output_buffer,weight_buffer1,beta_buffer,TMP_N_next1,Kernel_size,Kernel_stride,TMP_M,TM_MIN,TR_MIN,TC_MIN,n!=0,IsNL,n==nLoops,
@@ -1021,10 +975,8 @@ void intra_pingpong_wrapper(int *Input,int *Input1,int *Input2,int *Input3,int *
 			}
 		}
 	}
-	else if(LayerType==1)
-	{
-		if(pingpongx==0)
-		{
+	else if(LayerType==1){
+		if(pingpongx==0){
 			TMP_X_next[0] = tmp_x;
 			TX_MIN_next[0] = tmp_tx_min;
 			tmp_x = TMP_M;
@@ -1033,8 +985,8 @@ void intra_pingpong_wrapper(int *Input,int *Input1,int *Input2,int *Input3,int *
 			copy_input_weight(Input,Input1,Input2,Input3,Weight,InFM_num,Input_w,Input_h,Kernel_size,Kernel_stride,TMP_R,TMP_C,TMP_M,TMP_M,
 				TM_MIN,TM,TRow,TCol,0,input_buffer0,weight_buffer0,NOP,input_flag,0,0,IHxIW,KxK,IFM_numxKxK,LayerType,trow_loops);
 			pool_yolo2(input_buffer1,output_buffer,Kernel_size,Kernel_stride,TX_MIN_next[0],TR_MIN,TC_MIN,process_flag);
-		}else
-		{
+		}
+        else{
 			TMP_X_next[0] = tmp_x;
 			TX_MIN_next[0] = tmp_tx_min;
 			tmp_x = TMP_M;
@@ -1046,10 +998,8 @@ void intra_pingpong_wrapper(int *Input,int *Input1,int *Input2,int *Input3,int *
 		}
 
 	}
-	else if(LayerType==2)
-	{
-		if(pingpongx==0)
-		{
+	else if(LayerType==2){
+		if(pingpongx==0){
 			TMP_X_next[0] = tmp_x;
 			TX_MIN_next[0] = tmp_tx_min;
 			tmp_x = TMP_M;
@@ -1058,8 +1008,8 @@ void intra_pingpong_wrapper(int *Input,int *Input1,int *Input2,int *Input3,int *
 			copy_input_weight(Input,Input1,Input2,Input3,Weight,InFM_num,Input_w,Input_h,Kernel_size,Kernel_stride,TMP_R,TMP_C,TMP_M,TMP_M,
 				TM_MIN,TM,TRow,TCol,0,input_buffer0,weight_buffer0,NOP,input_flag,0,0,IHxIW,KxK,IFM_numxKxK,LayerType,trow_loops);
 			reorg_yolo2(input_buffer1,output_buffer,Kernel_size,Kernel_stride,TX_MIN_next[0],TR_MIN,TC_MIN,process_flag);
-		}else
-		{
+		}
+        else{
 			TMP_X_next[0] = tmp_x;
 			TX_MIN_next[0] = tmp_tx_min;
 			tmp_x = TMP_M;
@@ -1080,9 +1030,8 @@ void copy_beta(short beta_buffer[MAX_BETA_LENGTH],int *Beta,const int OFM_NUM,co
 	int NUM = (OFM_NUM+1)>>1;
 	memcpy(beta_tmp,(int *)Beta,NUM*sizeof(int));
 	int x;
-	for(x = 0;x < NUM;x++)
-	{
-#pragma HLS PIPELINE
+	for(x = 0;x < NUM;x++){
+        #pragma HLS PIPELINE
 		beta_buffer[2*x] = beta_tmp[x];
 		beta_buffer[2*x+1] = beta_tmp[x]>>16;
 	}
@@ -1187,16 +1136,16 @@ void YOLO2_FPGA(int *Input,int *Input1,int *Input2,int *Input3,int *Output,int *
 	//assert(TCol < 256);
 
 	static short input_buffer0[Tn][OnChipIB_Height][OnChipIB_Width];
-#pragma HLS ARRAY_PARTITION variable=input_buffer0 complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=input_buffer0 complete dim=1
 
 	static short input_buffer1[Tn][OnChipIB_Height][OnChipIB_Width];
-#pragma HLS ARRAY_PARTITION variable=input_buffer1 complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=input_buffer1 complete dim=1
 
 	static int output_buffer[Tm][Tr][Tc];
-#pragma HLS ARRAY_PARTITION variable=output_buffer complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=output_buffer complete dim=1
 
 	static int output_buffer1[Tm][Tr][Tc];
-#pragma HLS ARRAY_PARTITION variable=output_buffer1 complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=output_buffer1 complete dim=1
 
 	static short beta_buffer[MAX_BETA_LENGTH];
 
@@ -1215,15 +1164,12 @@ void YOLO2_FPGA(int *Input,int *Input1,int *Input2,int *Input3,int *Output,int *
 	if(LayerType==0)
 		copy_beta(beta_buffer,Beta,OutFM_num,BetaQ);
 
-	for(TMP_R = 0,r = 0; r < rLoops; r++, TMP_R += TR)
-	{
+	for(TMP_R = 0,r = 0; r < rLoops; r++, TMP_R += TR){
 		TR_MIN = MIN(TR,output_h -TMP_R);
-		for(TMP_C = 0,c = 0; c < cLoops; c++,TMP_C += TC)
-		{
+		for(TMP_C = 0,c = 0; c < cLoops; c++,TMP_C += TC){
 			TC_MIN = MIN(TC,output_w -TMP_C);
 			pingpongm = 0;
-			for(TMP_M = 0, m = 0; m < mLoops_bound; m++,TMP_M += TM)
-			{
+			for(TMP_M = 0, m = 0; m < mLoops_bound; m++,TMP_M += TM){
 				TM_MIN = MIN(TM,OutFM_num-TMP_M);
 				bool MneZero = (m!=0);
 				bool MneOne = (m!=1);
@@ -1233,23 +1179,30 @@ void YOLO2_FPGA(int *Input,int *Input1,int *Input2,int *Input3,int *Output,int *
 				bool process_flag = LayerType ? MneZero&&MneMLoopsaddOne : MnemLoops;
 				bool write_flag = LayerType ? MneZero&&MneOne : MneZero;
 
-				if(pingpongm==0)
-				{
+				if(pingpongm==0){
 					intra_pingpong_wrapper(Input,Input1,Input2,Input3,Weight,output_buffer1,beta_buffer,input_buffer0,input_buffer1,
 									InFM_num, Input_w, Input_h, Kernel_size, Kernel_stride,
-									TMP_R, TMP_C, TMP_M, m, TM_MIN, TR_MIN, TC_MIN, TN, TRow, TCol, Padding,IHxIW,KxK,IFM_numxKxK,nLoops,IsNL,LayerType,TM, TMP_M_next1,TM_MIN_next1, pingpongm, input_flag,
+									TMP_R, TMP_C, TMP_M, m, TM_MIN, TR_MIN, TC_MIN, TN, TRow, TCol, Padding,
+                                    IHxIW,KxK,IFM_numxKxK,nLoops,IsNL,LayerType,TM, TMP_M_next1,TM_MIN_next1, pingpongm, input_flag,
 									process_flag,InterSubBeta,WeightAddInputSubInter,InterSubOutput,trow_loops_6b);
 
-					write_back_output_reorg(output_buffer,Output,Output1,TMP_R,TMP_C,TMP_M_next0[0],output_w,output_h,TM_MIN_next0[0],TR_MIN,TC_MIN,OHxOW,write_flag,OutputQ, IsNL, InterSubOutput, LayerType);
+					write_back_output_reorg(output_buffer,Output,Output1,TMP_R,
+                            TMP_C,TMP_M_next0[0],output_w,output_h,TM_MIN_next0[0],
+                            TR_MIN,TC_MIN,OHxOW,
+                            write_flag,OutputQ, IsNL, InterSubOutput, LayerType);
 					pingpongm = 1;
-				}else
-				{
+				}
+                else{
 					intra_pingpong_wrapper(Input,Input1,Input2,Input3,Weight,output_buffer,beta_buffer,input_buffer0,input_buffer1,
 									InFM_num, Input_w, Input_h, Kernel_size, Kernel_stride,
-									TMP_R, TMP_C, TMP_M, m, TM_MIN, TR_MIN, TC_MIN, TN, TRow, TCol, Padding,IHxIW,KxK,IFM_numxKxK,nLoops,IsNL,LayerType,TM, TMP_M_next0,TM_MIN_next0, pingpongm, input_flag,
+									TMP_R, TMP_C, TMP_M, m, TM_MIN, TR_MIN, TC_MIN, TN, TRow, TCol, Padding,
+                                    IHxIW,KxK,IFM_numxKxK,nLoops,IsNL,LayerType,TM, TMP_M_next0,TM_MIN_next0, pingpongm, input_flag,
 									process_flag,InterSubBeta,WeightAddInputSubInter,InterSubOutput,trow_loops_6b);
 
-					write_back_output_reorg(output_buffer1,Output,Output1,TMP_R,TMP_C,TMP_M_next1[0],output_w,output_h,TM_MIN_next1[0],TR_MIN,TC_MIN,OHxOW,write_flag,OutputQ, IsNL, InterSubOutput, LayerType);
+					write_back_output_reorg(output_buffer1,Output,Output1,TMP_R,TMP_C,TMP_M_next1[0],
+                            output_w,output_h,TM_MIN_next1[0],
+                            TR_MIN,TC_MIN,OHxOW,
+                            write_flag,OutputQ, IsNL, InterSubOutput, LayerType);
 					pingpongm = 0;
 				}
 
